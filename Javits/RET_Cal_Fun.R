@@ -78,3 +78,35 @@ RET_hr =function(elevation,R_Up,AirT,u2,RH,Day_nit)
       DeltaVP(AirT)+gamma(elevation)*(1+Cd*u2)
     ) #(mm/day) 
 }
+
+
+# Function to determin the seasonal crop RET coefficient
+Crop_Coef=function(Date)
+{
+  coef=c(
+    0.8034, #Spring
+    0.9483, #Summer
+    0.9805, #Fall
+    0.59    #Winter
+  )
+  
+  year=strftime(Date, format="%Y",tz="UTC")
+  
+  Season_breaks=data.frame(Season=c('March Equinox',
+                             'June Solstice',
+                             'September Equinox',
+                             'December Solstice'),
+                    Date=c(ymd(paste0(year,'-03-20')), 
+                            ymd(paste0(year,'-06-20')), 
+                            ymd(paste0(year,'-09-22')), 
+                            ymd(paste0(year,'-12-21')) 
+                            )
+  )
+  
+  if (Date>=Season_breaks$Date[1] & Date<Season_breaks$Date[2]) return(coef[1])
+  if (Date>=Season_breaks$Date[2] & Date<Season_breaks$Date[3]) return(coef[2])
+  if (Date>=Season_breaks$Date[3] & Date<Season_breaks$Date[4]) return(coef[3])
+  if (Date>=Season_breaks$Date[4] | Date<Season_breaks$Date[1]) return(coef[4])
+                    
+        
+}
