@@ -14,6 +14,7 @@ Precip_Evt_Sep= function(dt)
            End=ifelse(Cum_Precip_4hr_L==0 & Rain>0,1,0)) %>% 
     mutate(Evt_lab=St+End) %>% 
     mutate(Evt_lab=cumsum(Evt_lab)) %>% 
+  mutate(Evt_lab=ifelse(lag(Evt_lab)<Evt_lab,Evt_lab-1,Evt_lab)) %>% 
     mutate(Evt_lab=ifelse(Evt_lab %% 2==0,0,(Evt_lab+1) %/% 2)) %>% 
     return
 }
