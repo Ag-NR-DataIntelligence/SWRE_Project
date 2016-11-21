@@ -16,5 +16,6 @@ Precip_Evt_Sep= function(dt)
     mutate(Evt_lab=cumsum(Evt_lab)) %>% 
   mutate(Evt_lab=ifelse(lag(Evt_lab)<Evt_lab,Evt_lab-1,Evt_lab)) %>% 
     mutate(Evt_lab=ifelse(Evt_lab %% 2==0,0,(Evt_lab+1) %/% 2)) %>% 
+  mutate(Evt_lab=ifelse(St>0 | End>0, 1,Evt_lab)) %>%
     return
 }
