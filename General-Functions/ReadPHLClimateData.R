@@ -139,7 +139,7 @@ PHL_Precip=fread(paste0(Path,'PHL\\Precip\\Data1900~2010.txt'),
          HOUR22,
          HOUR23,
          HOUR24) %>% 
-  mutate(Date=paste0(YEAR,MO,DA)) %>% 
+  mutate(Date=paste(YEAR,MO,DA,sep='-')) %>% 
   select(-YEAR,-MO,-DA) %>% 
   gather(Hour,Precip,-Date) %>% 
   mutate(Hour=substr(Hour,5,6)) %>% 
