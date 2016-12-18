@@ -173,3 +173,5 @@ PHL_Precip %<>%
 PHL_Clim %>% 
   full_join(PHL_Precip,by=c('Time'='Time')) -> PHL
 
+
+rm(Col_Nm,Dt_Rng,PHL_Clim,PHL_Precip)
