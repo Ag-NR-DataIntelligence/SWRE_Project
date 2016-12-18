@@ -165,3 +165,6 @@ NYC_LGA_Precip %<>%
 
 NYC_LGA_Clim %>% 
   full_join(NYC_LGA_Precip,by=c('Time'='Time')) -> NYC
+
+
+rm(Col_Nm,Dt_Rng,NYC_LGA_Clim,NYC_LGA_Precip)
