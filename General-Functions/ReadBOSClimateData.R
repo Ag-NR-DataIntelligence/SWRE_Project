@@ -159,3 +159,4 @@ BOS_Precip %<>%
 BOS_Clim %>% 
   full_join(BOS_Precip,by=c('Time'='Time')) -> BOS
 
+rm(Col_Nm,Dt_Rng,BOS_Clim,BOS_Precip)
