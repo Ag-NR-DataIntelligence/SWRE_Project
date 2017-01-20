@@ -1,15 +1,40 @@
 
-
 #Actual Vapor Pressure (ea), page 29-32 
   #Calculate actual vapor pressure (ea) by table 4, method 1, page 30
   #Saturation vapor pressure function, page 29, Eq 37
-  eo=function(T) {0.618*exp((17.27*T)/(T+237.3))}
+  eo=function(T) {0.6108*exp((17.27*T)/(T+237.3))}
   #Saturation Vapor Pressure (es), page 29 
   es=function(T_max,T_min) {(eo(T_max)+eo(T_min))/2}
   
   #Page 32, equation 41
   ea = function(RH_max,RH_min,T_max,T_min) 
     {((RH_max/100)*eo(T_min)+(RH_min/100)*eo(T_max))/2}
+
+# Wind speed at 2 m above the ground
+u2=function(uz,zw)
+  #z:  elevation  of measurement above ground
+  #uz: wind speed at z
+{
+  uz*4.87/log(67.8*z-5.42)
+}
+
+
+#Slope of the Saturation Vapor Pressure-Temperature Curve---------
+delta_SVP_hr = function (T_mean) {(4098*eo(T_mean))/((T_mean +237.3)^2)}
+
+#Psychrometric Constant (gamma), page 10
+#Calculate psychrometric constant (gamma) in kPa °C-1 from atmospheric
+#pressure assuming constant lamda (latent heat of vaporization)
+gamma = function(z) 
+{
+  
+  #Atmospheric Pressure (P), page 10
+  #Calculate atmosperhic pressure (P) in kPa, using site elevation 
+  aP = 101.3*(((293-0.0065*z)/293)^5.26)
+  
+  return(0.000665*aP)
+}
+
 
 
 # Extraterrestrial Radiation for 24-Hour Periods (Ra ) ------
@@ -69,46 +94,31 @@ Rn=function(Rs,RHmax,RHmin,Tmax,Tmin,z,Lat,Dt)
   Rnl=sigma*fcd*(0.34-0.14*sqrt(ea(RHmax,RHmin,Tmax,Tmin)))*
     ((Tmax+273.16)^4+(Tmin+273.16)^4)/2  #[K] (K =°C + 273.16)
   
-  return (Rns-Rnl)
+  return (0.408*(Rns-Rnl))
 }
   
   
-#Slope of the Saturation Vapor Pressure-Temperature Curve---------
-  delta_SVP_hr = function (T_mean) {(4098*eo(T_mean))/((T_mean +237.3)^2)}
-  
   
 #aerodynamic resistance (s/m)
-  ra=function(z,h,uz)
-    #z:   Height of weather station (m)
+  ra=function(zw,h,uz)
+    #zw:   Height of weather station (m)
     #h:   Crop height (m)
     #uz:  wind speed at height z (m/s)
   {
     K=0.41 #von Karman's constant, 0.41 [-]
     
     return(
-      log((z-2/3*h)/(0.123*h))*
-        log((z-2/3*h)/(0.0123*h))/
+      log((zw-2/3*h)/(0.123*h))*
+        log((zw-2/3*h)/(0.0123*h))/
         K^2/
         uz
     )
   }
   
-#Psychrometric Constant (gamma), page 10
-  #Calculate psychrometric constant (gamma) in kPa °C-1 from atmospheric
-  #pressure assuming constant lamda (latent heat of vaporization)
-  gamma = function(z) 
-  {
-    
-    #Atmospheric Pressure (P), page 10
-    #Calculate atmosperhic pressure (P) in kPa, using site elevation 
-    aP = 101.3*(((293-0.0065*z)/293)^5.26)
-    
-    return(0.000665*aP)
-  }
-  
+
   
 # wet-surface crop evapotranspiration rate (mm/d)
-  ET=function(T_mean,Rs,RHmax,RHmin,Tmax,Tmin,z,Lat,Dt,h,uz)
+  ET=function(T_mean,Rs,RHmax,RHmin,Tmax,Tmin,z,Lat,Dt,h,uz,zw)
     #T_mean:   mean air temperature (°C)
     #Rs:   incoming solar radiation [MJ m-2 d-1].
     #RHmax: max relative humidity
@@ -120,6 +130,7 @@ Rn=function(Rs,RHmax,RHmin,Tmax,Tmin,z,Lat,Dt)
     #Dt:   Date
     #h:    Crop height
     #uz:  wind speed at height z (m/s)
+    #zw:  elevation of weather station
   {
     #Soil Heat Flux Density (G) in MJ m-2 d-1
     #Estimated as 0 over the daily time period
@@ -135,10 +146,11 @@ Rn=function(Rs,RHmax,RHmin,Tmax,Tmin,z,Lat,Dt)
     
     
     fst_pt=delta_SVP_hr(T_mean)*(Rn(Rs,RHmax,RHmin,Tmax,Tmin,z,Lat,Dt)-G)
-    es_ea_ov_ra=(es(Tmax,Tmin)-ea(RHmax,RHmin,Tmax,Tmin))/ra(z,h,uz)
+    es_ea_ov_ra=(es(Tmax,Tmin)-ea(RHmax,RHmin,Tmax,Tmin))/ra(zw,h,u2(uz,zw))
     Sec_pt=Ktime*(gamma(z)*epshlon*lambda)/
                     (1.01*R*(T_mean+273))*es_ea_ov_ra
-    base=(delta_SVP_hr(T_mean)+gamma(z))*lambda
+    base=delta_SVP_hr(T_mean)+gamma(z)*(1+0.34*u2(uz,zw))
+    #base=(delta_SVP_hr(T_mean)+gamma(z))*lambda
     return(
       (fst_pt+Sec_pt)/base
     )
