@@ -1,112 +1,144 @@
-# RET Calculation 
 
-library(StreamMetabolism)
+#Actual Vapor Pressure (ea), page 29-32 
+  #Calculate actual vapor pressure (ea) by table 4, method 1, page 30
+  #Saturation vapor pressure function, page 29, Eq 37
+  eo=function(T) {0.618*exp((17.27*T)/(T+237.3))}
+  #Saturation Vapor Pressure (es), page 29 
+  es=function(T_max,T_min) {(eo(T_max)+eo(T_min))/2}
+  
+  #Page 32, equation 41
+  ea = function(RH_max,RH_min,T_max,T_min) 
+    {((RH_max/100)*eo(T_min)+(RH_min/100)*eo(T_max))/2}
 
 
-#function to calculate sunrise and sunset time for a specific day
-
-sunrs.st=function (lat, long, date, timezone = "UTC", num.days = 1) 
+# Extraterrestrial Radiation for 24-Hour Periods (Ra ) ------
+# MJ m-2 d-1
+Ra=function(Lat,Dt) 
+  #Lat:  Latitude
+  #Dt:   Date
 {
-  lat.long <- matrix(c(long, lat), nrow = 1)
-  day <- as.POSIXct(date, tz = timezone)
-  sunrise <- sunriset(lat.long, day, direction = "sunrise", 
-                      POSIXct = TRUE)
-  sunset <- sunriset(lat.long, day, direction = "sunset", 
-                     POSIXct = TRUE)
-  ss <- data.frame(sunrise, sunset)
-  ss <- ss[, -c(1, 3)]
-  colnames(ss) <- c("sunrise", "sunset")
-  return(ss)
+  Gsc= 4.92 #solar constant MJ m-2 h-1
+  phi=Lat*pi/180  #Radiaus latitude
+  J_dt=yday(Dt)  #Julian date
+  
+  dr=1+0.033*cos(2*pi/360*J_dt)  # inverse relative distance factor (squared) for the earth-sun [unitless],
+  
+  delta_solar=0.409*sin(2*pi/360*J_dt-1.39) #solar declination [radians].
+  
+  ws=acos(-tan(phi)*tan(delta_solar))  #sunset hour angle [radians]
+  
+  return(24/pi*Gsc*dr*
+           (ws*sin(phi)*sin(delta_solar)+
+              cos(phi)*cos(delta_solar)*sin(ws)
+            )
+         )
 }
 
 
-
-#Rn (Net radiation at the crop surface [MJ/m^2/hr])
-#G (soil heat flux density [MJ/m^2/day]) neglected
-#Tmean (mean air temperature ['C]) : AirTC_Avg
-#u2 (wind speed measured at 2 m height [m/s]) : WS_ms_Min
-
-#*es (saturation vapor pressure [kPa]) = 0.6108*exp((17.27T)/(T+237.3))
-#*ea (actual vapor pressure [kPa]) = es(AirTC_Avg)*RH/100-----------Need to confirm with lauren
-#*es-ea (saturation vapor pressure deficit [kPa])
-
-
-es_ea=function(RH,AirT)
+#Net Radiation (Rn )-----------
+Rn=function(Rs,RHmax,RHmin,Tmax,Tmin,z,Lat,Dt)
+  #Rs:   incoming solar radiation [MJ m-2 d-1].
+  #RHmax: max relative humidity
+  #RHmin: min relative humidity
+  #Tmax: maximum absolute temperature during the 24-hour period ,
+  #Tmin: minimum absolute temperature during the 24-hour period 
+  #z:    station elevation above sea level [m].
+  #Lat:  Latitude
+  #Dt:   Date
 {
   
-  return(0.6108*exp(17.27*AirT/(AirT+237.3))*(1-RH/100))
-}
-
-#*deltaVP (slope vapor pressure curve) : 4098*(0.6108*exp(17.27*AirTC_Avg/(AirTC_Avg+237.3)))/(AirTC_Avg+237.3^2)
-
-DeltaVP = function(AirT)
-{
+  #net short-wave radiation, [MJ m-2 d-1] ---------
+  #(defined as being positive downwards and negative upwards)
+    #-----------
+    #albedo or canopy reflection coefficient, is fixed at 0.23 for the
+    #standardized short and tall reference surfaces [dimensionless], and
+  Alpha=0.19
+  Rns=(1-Alpha)*Rs
   
-  4098*
-    (0.6108*
-       exp(17.27*AirT/
-             (AirT+237.3)
-       )
-    )/(AirT+237.3)^2
-}
-
-#P atmospheric pressure 101.3((293-0.0065*z)/293^5.26 (z: elevation above sea level)
-
-Atmo_Press= function (elevation) 
-{
-  return (101.3*((293-0.0065*elevation)/293)^5.26)
-}
-
-#gamma (psychrometric constant [kPa/'C]) : 0.665e-3 * P
-
-gamma=function(elevation)
-{
-  return(0.665e-3*Atmo_Press(elevation))
-}
-
-
-RET_hr =function(elevation,R_Up,AirT,u2,RH,Day_nit)
-{
-  Cn=37
-  Cd=ifelse(Day_nit=='D',0.24,0.96)
+  #net outgoing long-wave radiation, [MJ m-2 d-1] ------
+  #(defined as being  positive upwards and negative downwards),
+  #-----------
+    
+  sigma = 4.901e-09;  #Stefan-Boltzman_constant(sigma) in units of MJ K-4 m-2 d-1
   
-  (
-    0.408*DeltaVP(AirT)*R_Up+
-      gamma(elevation)*Cn/(AirT+273)*u2*es_ea(RH,AirT)
-  )/
-    (
-      DeltaVP(AirT)+gamma(elevation)*(1+Cd*u2)
-    ) #(mm/day) 
+  Rso=(0.75+2e-5*z)*Ra(Lat,Dt) # calculated clear-sky radiation [MJ m-2 d-1].
+  #cloudiness function [dimensionless] (limited to 0.05 ??? fcd ??? 1.0)
+  fcd=1.35*Rs/Rso-0.35
+  
+  Rnl=sigma*fcd*(0.34-0.14*sqrt(ea(RHmax,RHmin,Tmax,Tmin)))*
+    ((Tmax+273.16)^4+(Tmin+273.16)^4)/2  #[K] (K =°C + 273.16)
+  
+  return (Rns-Rnl)
 }
-
-
-# Function to determin the seasonal crop RET coefficient
-Crop_Coef=function(Date)
-{
-  coef=c(
-    0.8034, #Spring
-    0.9483, #Summer
-    0.9805, #Fall
-    0.59    #Winter
-  )
   
-  year=strftime(Date, format="%Y",tz="UTC")
   
-  Season_breaks=data.frame(Season=c('March Equinox',
-                             'June Solstice',
-                             'September Equinox',
-                             'December Solstice'),
-                    Date=c(ymd(paste0(year,'-03-20')), 
-                            ymd(paste0(year,'-06-20')), 
-                            ymd(paste0(year,'-09-22')), 
-                            ymd(paste0(year,'-12-21')) 
-                            )
-  )
+#Slope of the Saturation Vapor Pressure-Temperature Curve---------
+  delta_SVP_hr = function (T_mean) {(4098*eo(T_mean))/((T_mean +237.3)^2)}
   
-  if (Date>=Season_breaks$Date[1] & Date<Season_breaks$Date[2]) return(coef[1])
-  if (Date>=Season_breaks$Date[2] & Date<Season_breaks$Date[3]) return(coef[2])
-  if (Date>=Season_breaks$Date[3] & Date<Season_breaks$Date[4]) return(coef[3])
-  if (Date>=Season_breaks$Date[4] | Date<Season_breaks$Date[1]) return(coef[4])
-                    
-        
-}
+  
+#aerodynamic resistance (s/m)
+  ra=function(z,h,uz)
+    #z:   Height of weather station (m)
+    #h:   Crop height (m)
+    #uz:  wind speed at height z (m/s)
+  {
+    K=0.41 #von Karman's constant, 0.41 [-]
+    
+    return(
+      log((z-2/3*h)/(0.123*h))*
+        log((z-2/3*h)/(0.0123*h))/
+        K^2/
+        uz
+    )
+  }
+  
+#Psychrometric Constant (gamma), page 10
+  #Calculate psychrometric constant (gamma) in kPa °C-1 from atmospheric
+  #pressure assuming constant lamda (latent heat of vaporization)
+  gamma = function(z) 
+  {
+    
+    #Atmospheric Pressure (P), page 10
+    #Calculate atmosperhic pressure (P) in kPa, using site elevation 
+    aP = 101.3*(((293-0.0065*z)/293)^5.26)
+    
+    return(0.000665*aP)
+  }
+  
+  
+# wet-surface crop evapotranspiration rate (mm/d)
+  ET=function(T_mean,Rs,RHmax,RHmin,Tmax,Tmin,z,Lat,Dt,h,uz)
+    #T_mean:   mean air temperature (°C)
+    #Rs:   incoming solar radiation [MJ m-2 d-1].
+    #RHmax: max relative humidity
+    #RHmin: min relative humidity
+    #Tmax: maximum absolute temperature during the 24-hour period ,
+    #Tmin: minimum absolute temperature during the 24-hour period 
+    #z:    station elevation above sea level [m].
+    #Lat:  Latitude
+    #Dt:   Date
+    #h:    Crop height
+    #uz:  wind speed at height z (m/s)
+  {
+    #Soil Heat Flux Density (G) in MJ m-2 d-1
+    #Estimated as 0 over the daily time period
+    G = 0
+    Ktime=86400 #number of seconds in a day
+    #ratio of molecular masses of water vapor and dry air (0.622); 
+    epshlon=0.622
+    #Latent Heat of Vaporization (page 9)
+    #Constant: latent heat of vaporization (lambda) in units of MJ kg-1
+    lambda = 2.45 
+    # Specific gas constant 0.287 kJ kg-1 k-1
+    R=0.287
+    
+    
+    fst_pt=delta_SVP_hr(T_mean)*(Rn(Rs,RHmax,RHmin,Tmax,Tmin,z,Lat,Dt)-G)
+    es_ea_ov_ra=(es(Tmax,Tmin)-ea(RHmax,RHmin,Tmax,Tmin))/ra(z,h,uz)
+    Sec_pt=Ktime*(gamma(z)*epshlon*lambda)/
+                    (1.01*R*(T_mean+273))*es_ea_ov_ra
+    base=(delta_SVP_hr(T_mean)+gamma(z))*lambda
+    return(
+      (fst_pt+Sec_pt)/base
+    )
+  }
