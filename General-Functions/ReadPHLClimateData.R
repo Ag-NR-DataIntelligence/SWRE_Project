@@ -1,3 +1,4 @@
+source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/General-Functions/Non_StationaryInterMFunctions.R')
 
 
 library(data.table)
@@ -58,6 +59,8 @@ PHL_Clim=fread(paste0(Path,'PHL\\Air Pressure & Temp & Humidity\\9901356023046da
   mutate(Temp=ifelse(Temp==999.9,NA,Temp),
          DewPt=ifelse(DewPt==999.9,NA,DewPt),
          SLP=ifelse(SLP==9999.9,NA,SLP)) %>% 
+  #Round time to hourly step
+  mutate(Time=Round_hour(Time)) %>% 
   #Combine duplicated Time
   select(Time,
          Temp,
@@ -144,8 +147,12 @@ PHL_Precip=fread(paste0(Path,'PHL\\Precip\\Data1900~2010.txt'),
   gather(Hour,Precip,-Date) %>% 
   mutate(Hour=substr(Hour,5,6)) %>% 
   mutate(Time=ymd_h(paste(Date,Hour))) %>% 
-  arrange(Time) %>% 
-  select(Time,Precip)
+  #Round time to hourly step
+  mutate(Time=Round_hour(Time)) %>% 
+  select(Time,Precip) %>% 
+  group_by(Time) %>% 
+  summarise(Precip=mean(Precip,na.rm =T)) %>% 
+  arrange(Time) 
 
 
 ############### Date Range
