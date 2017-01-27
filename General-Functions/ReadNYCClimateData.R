@@ -1,3 +1,4 @@
+source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/General-Functions/Non_StationaryInterMFunctions.R')
 
 library(data.table)
 library(lubridate)
@@ -51,6 +52,8 @@ NYC_LGA_Clim=fread(paste0(Path,'NYC\\La Gadia\\Climate\\Data.txt'),
   mutate(Temp=ifelse(Temp==999.9,NA,Temp),
          DewPt=ifelse(DewPt==999.9,NA,DewPt),
          SLP=ifelse(SLP==9999.9,NA,SLP)) %>% 
+  #Round time to hourly step
+  mutate(Time=Round_hour(Time)) %>% 
   #Combine duplicated Time
   select(Time,
          Temp,
@@ -137,8 +140,12 @@ NYC_LGA_Precip=fread(paste0(Path,'NYC\\La Gadia\\Precip\\4200115587195dat.txt'),
   gather(Hour,Precip,-Date) %>% 
   mutate(Hour=substr(Hour,5,6)) %>% 
   mutate(Time=ymd_h(paste(Date,Hour))) %>% 
-  arrange(Time) %>% 
-  select(Time,Precip)
+  #Round time to hourly step
+  mutate(Time=Round_hour(Time)) %>% 
+  select(Time,Precip) %>% 
+  group_by(Time) %>% 
+  summarise(Precip=mean(Precip,na.rm =T)) %>% 
+  arrange(Time) 
 
 
 ############### Date Range
