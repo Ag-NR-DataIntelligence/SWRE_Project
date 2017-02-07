@@ -27,7 +27,7 @@ SyncP_Generate=function(NumofNearMon = 5,
     
     
     # Loop to generate new events -----------------------
-    set.seed(11)
+   
     repeat
     {
         # Get window parameters ( number of months, and temperature width)
