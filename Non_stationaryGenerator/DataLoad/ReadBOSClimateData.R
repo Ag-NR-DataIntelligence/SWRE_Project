@@ -1,5 +1,5 @@
 
-source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/General-Functions/Non_StationaryInterMFunctions.R')
+source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/Non_stationaryGenerator/Non_StationaryInterMFunctions.R')
 
 library(data.table)
 library(lubridate)
