@@ -3,14 +3,6 @@ source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/Non_station
 source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/Non_stationaryGenerator/DataLoad/ReadBOSClimateData.R')
 source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/Non_stationaryGenerator/DataLoad/ReadPHLClimateData.R')
 
-rm(Col_Nm,
-   BOS_Clim,
-   BOS_Precip,
-   Dt_Rng,
-   NYC_LGA_Clim,
-   NYC_LGA_Precip,
-   PHL_Clim,
-   PHL_Precip)
 
 BOS$Loc='BOS'
 NYC$Loc='NYC'
