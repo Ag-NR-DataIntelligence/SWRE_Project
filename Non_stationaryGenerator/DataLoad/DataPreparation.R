@@ -61,7 +61,7 @@ Raw_dt_Evt=rbind(BOS_Press_Evt,NYC_Press_Evt,PHL_Press_Evt)
 rm(BOS_Press_Evt,NYC_Press_Evt,PHL_Press_Evt)
 
 # Climate change monthly Temperature data
-path='Y:\\Ziwen\\Research\\Precipitation analysis\\Data\\Data with climate change\\Monthly Temp\\'
+path='Y:\\Research\\Precipitation analysis\\Data\\Data with climate change\\Monthly Temp\\'
 file='Philadelphia Temperature A2.csv'
 MonthT=read.csv(paste0(path,file),sep=',',header=T,stringsAsFactors = F) %>% 
   mutate(Date=mdy(Date)) %>% 
