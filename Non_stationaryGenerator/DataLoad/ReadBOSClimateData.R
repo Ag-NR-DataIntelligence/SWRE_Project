@@ -100,7 +100,9 @@ BOS_Precip=fread(paste0(Path,'Boston\\Precip\\5240035303043dat.txt'),
                                 'character','numeric','character','character',
                                 'character','numeric','character','character',
                                 'character','numeric','character','character',
-                                'character','numeric','character','character')) %>% 
+                                'character','numeric','character','character'))
+
+BOS_Precip[ , !duplicated(colnames(BOS_Precip)),with=F]%>% 
   select(YEAR,
          MO,
          DA,
@@ -138,7 +140,7 @@ BOS_Precip=fread(paste0(Path,'Boston\\Precip\\5240035303043dat.txt'),
   select(Time,Precip) %>% 
   group_by(Time) %>% 
   summarise(Precip=mean(Precip,na.rm =T)) %>% 
-  arrange(Time) 
+  arrange(Time) ->BOS_Precip
 
 
 ############### Date Range
