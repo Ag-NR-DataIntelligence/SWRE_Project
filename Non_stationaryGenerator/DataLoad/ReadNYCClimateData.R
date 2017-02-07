@@ -18,10 +18,10 @@ NYC_LGA_Clim=fread(paste0(Path,'NYC\\La Gadia\\Climate\\Data.txt'),
                              'Temp','Temp_Q',
                              'DewPt','DewPt_Q',
                              'SLP','SLP_Q',
-                             'Precip_Pr','Precip_Amt','Precip_I','Precip_Q',
-                             'Precip_Pr','Precip_Amt','Precip_I','Precip_Q',
-                             'Precip_Pr','Precip_Amt','Precip_I','Precip_Q',
-                             'Precip_Pr','Precip_Amt','Precip_I','Precip_Q',
+                             'Precip_Pr1','Precip_Amt1','Precip_I1','Precip_Q',
+                             'Precip_Pr2','Precip_Amt2','Precip_I2','Precip_Q',
+                             'Precip_Pr3','Precip_Amt3','Precip_I3','Precip_Q',
+                             'Precip_Pr4','Precip_Amt4','Precip_I4','Precip_Q',
                              'Precip_I','Precip_Amt',
                              'PRES_CHG_T','PRES_CHG_Q','PRES_CHG_3Hr','PRES_CHG_3Hr_Q','PRES_CHG_24Hr','PRES_CHG_24Hr_q',
                              'RHX','unk')
@@ -107,7 +107,9 @@ NYC_LGA_Precip=fread(paste0(Path,'NYC\\La Gadia\\Precip\\4200115587195dat.txt'),
                                 'character','numeric','character','character',
                                 'character','numeric','character','character',
                                 'character','numeric','character','character',
-                                'character','numeric','character','character')) %>% 
+                                'character','numeric','character','character')) 
+
+NYC_LGA_Precip[ , !duplicated(colnames(NYC_LGA_Precip)),with=F] %>% 
   select(YEAR,
          MO,
          DA,
@@ -145,7 +147,7 @@ NYC_LGA_Precip=fread(paste0(Path,'NYC\\La Gadia\\Precip\\4200115587195dat.txt'),
   select(Time,Precip) %>% 
   group_by(Time) %>% 
   summarise(Precip=mean(Precip,na.rm =T)) %>% 
-  arrange(Time) 
+  arrange(Time) ->NYC_LGA_Precip
 
 
 ############### Date Range
