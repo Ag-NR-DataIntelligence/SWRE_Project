@@ -62,9 +62,11 @@ PHL_Press_Evt=Get_Press_Evt(PHL)
 Raw_dt=rbind(BOS,NYC,PHL) %>% 
   mutate(Precip=ifelse(is.na(Precip),0,Precip))
 
+rm(BOS,NYC,PHL)
 
 Raw_dt_Evt=rbind(BOS_Press_Evt,NYC_Press_Evt,PHL_Press_Evt)
 
+rm(BOS_Press_Evt,NYC_Press_Evt,PHL_Press_Evt)
 
 # Climate change monthly Temperature data
 path='Y:\\Ziwen\\Research\\Precipitation analysis\\Data\\Data with climate change\\Monthly Temp\\'
