@@ -4,7 +4,7 @@ source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/Non_station
 library(data.table)
 library(lubridate)
 ###  Load Historical data -----------
-Path='Y:\\Research\\Precipitation analysis\\Data\\'
+Path='\\\\SWV.cae.drexel.edu\\ziwen\\Research\\Precipitation analysis\\Data\\'
 
 #### PHL data  
 PHL_Clim=fread(paste0(Path,'PHL\\Air Pressure & Temp & Humidity\\9901356023046dat.txt'),
