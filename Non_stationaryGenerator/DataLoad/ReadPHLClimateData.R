@@ -114,7 +114,9 @@ PHL_Precip=fread(paste0(Path,'PHL\\Precip\\Data1900~2010.txt'),
                                 'character','numeric','character','character',
                                 'character','numeric','character','character',
                                 'character','numeric','character','character',
-                                'character','numeric','character','character')) %>% 
+                                'character','numeric','character','character')) 
+
+PHL_Precip[ , !duplicated(colnames(PHL_Precip)),with=F] %>% 
   select(YEAR,
          MO,
          DA,
@@ -152,7 +154,7 @@ PHL_Precip=fread(paste0(Path,'PHL\\Precip\\Data1900~2010.txt'),
   select(Time,Precip) %>% 
   group_by(Time) %>% 
   summarise(Precip=mean(Precip,na.rm =T)) %>% 
-  arrange(Time) 
+  arrange(Time) ->PHL_Precip
 
 
 ############### Date Range
