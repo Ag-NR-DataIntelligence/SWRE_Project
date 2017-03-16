@@ -2,9 +2,17 @@ Libs=c('lubridate','dplyr','tidyr','magrittr','RcppRoll','wrapr','zoo')
 lapply(Libs,library, character.only = TRUE)
 
 
-DtF=read.csv('https://raw.githubusercontent.com/ZyuAFD/SWRE_General_R_Functions/master/data/Sample_Precipitation.csv',
-             sep=',',header=T,stringsAsFactors = F) %>%
-    mutate(Time=ymd_hms(Time))
+DtF=read.csv("C:\\Users\\zy32\\Desktop\\Sample data .csv",
+             sep=',',header=T,stringsAsFactors = F) %>% 
+    mutate(Time=paste0(as.character(Year),'-',
+                       as.character(Month),'-',
+                       as.character(Date),' ',
+                       as.character(Hour),':',
+                       as.character(Minute))) %>% 
+    mutate(Time=ymd_hm(Time))
+
+
+    
 
 
 
@@ -56,12 +64,13 @@ rm(Dt_rng)
 
 
 
-# Interpolation
+# Interpolation------------------------
 
 
 # Linear for continuous values
 y=data.frame(Time=Tm_srs,
-             Rain=na.approx(x$Rain,x=x$Time,xout=Tm_srs,na.rm=F)
+             Press=na.approx(x$SLP,x=x$Time,xout=Tm_srs,na.rm=F),
+             Temp=na.approx(x$Temperature,x=x$Time,xout=Tm_srs,na.rm=F)
 )
 
 
@@ -70,5 +79,5 @@ DtF %>%
     arrange(Time) %>% 
     mutate(Hr=Time-minutes(minute(Time))) %>% 
     group_by(Hr) %>% 
-    summarise(Rain=sum(Rain,na.rm=T)) ->y
+    summarise(Rain=sum(PCP01,na.rm=T)) ->y
 
