@@ -3,6 +3,7 @@ source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/Non_station
 
 library(data.table)
 library(lubridate)
+library(RcppRoll)
 ###  Load Historical data -----------
 Path='\\\\SWV.cae.drexel.edu\\ziwen\\Research\\Precipitation analysis\\Data\\'
 
@@ -167,5 +168,13 @@ BOS_Precip %<>%
 
 BOS_Clim %>% 
   full_join(BOS_Precip,by=c('Time'='Time')) -> BOS
+
+# Manipulation ---------
+BOS %<>%
+    # Moving average
+    mutate(Temp.av=roll_mean(Temp,n=48,align='center',fill=NA),
+           SLP.av=roll_mean(SLP,n=48,align='center',fill=NA)) %>% 
+    # Change of SLP to previous day
+    mutate(SLP_chng.av=SLP.av-lag(SLP.av,24))
 
 rm(Col_Nm,Dt_Rng,BOS_Clim,BOS_Precip)
