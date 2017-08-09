@@ -180,8 +180,8 @@ NYC_LGA_Clim %>%
 # Manipulation ---------
 NYC %<>%
     # Moving average
-    mutate(Temp.av=roll_mean(Temp,n=48,align='center',fill=NA),
-           SLP.av=roll_mean(SLP,n=48,align='center',fill=NA)) %>% 
+    mutate(Temp.av=roll_mean(Temp,n=24,align='center',fill=NA),
+           SLP.av=roll_mean(SLP,n=24,align='center',fill=NA)) %>% 
     # Change of SLP to previous day
     mutate(SLP_chng.av=SLP.av-lag(SLP.av,24))
 
