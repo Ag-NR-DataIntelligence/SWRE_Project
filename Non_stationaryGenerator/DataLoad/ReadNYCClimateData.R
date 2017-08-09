@@ -2,6 +2,7 @@ source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/Non_station
 
 library(data.table)
 library(lubridate)
+library(RcppRoll)
 ###  Load Historical data -----------
 Path='\\\\SWV.cae.drexel.edu\\ziwen\\Research\\Precipitation analysis\\Data\\'
 
@@ -175,5 +176,13 @@ NYC_LGA_Precip %<>%
 NYC_LGA_Clim %>% 
   full_join(NYC_LGA_Precip,by=c('Time'='Time')) -> NYC
 
+
+# Manipulation ---------
+NYC %<>%
+    # Moving average
+    mutate(Temp.av=roll_mean(Temp,n=48,align='center',fill=NA),
+           SLP.av=roll_mean(SLP,n=48,align='center',fill=NA)) %>% 
+    # Change of SLP to previous day
+    mutate(SLP_chng.av=SLP.av-lag(SLP.av,24))
 
 rm(Col_Nm,Dt_Rng,NYC_LGA_Clim,NYC_LGA_Precip)
