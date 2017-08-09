@@ -184,6 +184,7 @@ PHL_Precip %<>%
 PHL_Clim %>% 
   full_join(PHL_Precip,by=c('Time'='Time')) -> PHL
 
+# Manipulation ---------
 PHL %>%
     # Moving average
     mutate(Temp.av=roll_mean(Temp,n=48,align='center',fill=NA),
