@@ -154,6 +154,7 @@ PHL_Precip[ , !duplicated(colnames(PHL_Precip)),with=F] %>%
   #Round time to hourly step
   mutate(Time=Round_hour(Time)) %>% 
   select(Time,Precip) %>% 
+  mutate(Precip=ifelse(Precip>999,0,Precip)) %>% 
   group_by(Time) %>% 
   summarise(Precip=mean(Precip,na.rm =T)) %>% 
   arrange(Time) ->PHL_Precip
