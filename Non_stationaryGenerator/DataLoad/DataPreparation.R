@@ -61,8 +61,44 @@ Raw_dt_Evt=rbind(BOS_Press_Evt,NYC_Press_Evt,PHL_Press_Evt)
 rm(BOS_Press_Evt,NYC_Press_Evt,PHL_Press_Evt)
 
 # Climate change monthly Temperature data
-path='\\\\SWV.cae.drexel.edu\\ziwen\\Research\\Precipitation analysis\\Data\\Data with climate change\\Monthly Temp\\'
-file='Philadelphia Temperature A2.csv'
-MonthT=read.csv(paste0(path,file),sep=',',header=T,stringsAsFactors = F) %>% 
-  mutate(Date=mdy(Date)) %>% 
-  gather(.,Model,MonT,-Date)
+
+library(readxl)
+file="\\\\SWV.cae.drexel.edu\\Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/Philadelphia Temperature.xlsx"
+PHL_MonthT <- bind_rows(read_excel(file, 
+                                sheet = "A2") %>% 
+                           mutate(Emission="A2"),
+                       read_excel(file, 
+                                  sheet = "B1") %>% 
+                           mutate(Emission="B1"),
+                       read_excel(file, 
+                                  sheet = "A1B") %>% 
+                           mutate(Emission="A1B")
+) %>% mutate(Loc="PHL")
+file="\\\\SWV.cae.drexel.edu\\Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/BOS Temperature.xlsx"
+BOS_MonthT <- bind_rows(read_excel(file, 
+                                  sheet = "A2") %>% 
+                           mutate(Emission="A2"),
+                       read_excel(file, 
+                                  sheet = "B1") %>% 
+                           mutate(Emission="B1"),
+                       read_excel(file, 
+                                  sheet = "A1B") %>% 
+                           mutate(Emission="A1B")
+) %>% mutate(Loc="BOS")
+file="\\\\SWV.cae.drexel.edu\\Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/NYC Temperature.xlsx"
+NYC_MonthT <- bind_rows(read_excel(file, 
+                                  sheet = "A2") %>% 
+                           mutate(Emission="A2"),
+                       read_excel(file, 
+                                  sheet = "B1") %>% 
+                           mutate(Emission="B1"),
+                       read_excel(file, 
+                                  sheet = "A1B") %>% 
+                           mutate(Emission="A1B")
+) %>% mutate(Loc="NYC")
+
+MonthT=bind_rows(PHL_MonthT,BOS_MonthT,NYC_MonthT) %>% 
+  mutate(Date=ymd(Date)) %>% 
+  gather(.,Model,MonT,-Date,-Emission,-Loc)
+
+rm(PHL_MonthT,BOS_MonthT,NYC_MonthT)
