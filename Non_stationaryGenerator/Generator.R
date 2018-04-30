@@ -89,9 +89,10 @@ SyncP_Generate=function(NumofNearMon = 5,
             rbind(Precip.syn,.)->Precip.syn
     }
     
-    Precip.syn %>% 
-        mutate(SyncTime=StTime+hours(row_number()-1)) %>% 
-        return
+    Precip.syn %<>% 
+        mutate(SyncTime=StTime+hours(row_number()-1))
+  
+  list(Press_Perd.syn,Precip.syn) %>% return
     
     
 }
