@@ -75,7 +75,8 @@ SyncP_Generate=function(NumofNearMon = 5,
                           DewPt=NULL,
                           SLP=NULL,
                           Precip=NULL,
-                          Loc=NULL)
+                          Loc=NULL,
+                         HisPressEvt_lab=NULL)
     for (i in 1:nrow(Press_Perd.syn))
     {
         
@@ -86,6 +87,7 @@ SyncP_Generate=function(NumofNearMon = 5,
         Raw_dt %>% 
             filter(between(Time,Evt$St,Evt$End),
                    Loc==Evt$Loc) %>% 
+            mutate(Press_Evt_lab=Evt$Press_Evt_lab %>%
             rbind(Precip.syn,.)->Precip.syn
     }
     
