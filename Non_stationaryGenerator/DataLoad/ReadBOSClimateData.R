@@ -5,7 +5,7 @@ library(data.table)
 library(lubridate)
 library(RcppRoll)
 ###  Load Historical data -----------
-Path='\\\\SWV.cae.drexel.edu\\Personal\\ziwen\\Research\\Precipitation analysis\\Data\\'
+Path='\\\\SWV.cae.drexel.edu\\ziwen\\Research\\Precipitation analysis\\Data\\'
 
 #### Boston data  
 BOS_Clim=fread(paste0(Path,'Boston\\Climate\\9057256473261dat.txt'),
