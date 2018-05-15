@@ -15,7 +15,7 @@ SyncP_Generate=function(NumofNearMon = 5,
     
     #MonthT=PHLT.Month 
     
-    StTime=ymd_hms("2012-01-01 00:00:00")
+    StTime=ymd_hms("1950-01-01 00:00:00")
     
     SynTime=StTime
     Press_Perd.syn=data.frame(Press_Evt_lab=NULL
