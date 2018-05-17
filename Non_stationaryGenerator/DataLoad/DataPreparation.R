@@ -20,6 +20,7 @@ Get_Press_Evt=function(Dt)
   
   
   Dt %>% 
+    arrange(Time)%>%
     mutate(SLP_sm=SLP-lag(SLP,24),
            Mon=month(Time)) %>% 
     # Roll average over 24 hours
