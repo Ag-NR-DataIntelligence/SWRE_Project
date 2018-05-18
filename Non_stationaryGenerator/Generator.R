@@ -88,6 +88,8 @@ SyncP_Generate=function(NumofNearMon = 5,
             filter(between(Time,Evt$St,Evt$End),
                    Loc==Evt$Loc) %>% 
             mutate(Press_Evt_lab=Evt$Press_Evt_lab) %>%
+            select(Time,Temp,DewPt,SLP,Precip,Loc,Press_Evt_lab) %>% 
+            rename(HisPressEvt_lab=Press_Evt_lab) %>% 
             rbind(Precip.syn,.)->Precip.syn
     }
     
