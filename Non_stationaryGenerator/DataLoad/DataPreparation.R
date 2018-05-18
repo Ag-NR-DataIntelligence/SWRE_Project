@@ -109,7 +109,7 @@ Raw_dt_Evt=rbind(BOS_Press_Evt,NYC_Press_Evt,PHL_Press_Evt) %>%
 
 # Climate change monthly Temperature data -------------------
 library(readxl)
-file="Y:/Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/Philadelphia Temperature.xlsx"
+file="\\\\swv.cae.drexel.edu\\personal\\Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/Philadelphia Temperature.xlsx"
 PHL_MonthT <- bind_rows(read_excel(file, 
                                 sheet = "A2") %>% 
                            mutate(Emission="A2"),
@@ -120,7 +120,7 @@ PHL_MonthT <- bind_rows(read_excel(file,
                                   sheet = "A1B") %>% 
                            mutate(Emission="A1B")
 ) %>% mutate(Loc="PHL")
-file="Y:/Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/BOS Temperature.xlsx"
+file="\\\\swv.cae.drexel.edu\\personal\\Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/BOS Temperature.xlsx"
 BOS_MonthT <- bind_rows(read_excel(file, 
                                   sheet = "A2") %>% 
                            mutate(Emission="A2"),
@@ -131,7 +131,7 @@ BOS_MonthT <- bind_rows(read_excel(file,
                                   sheet = "A1B") %>% 
                            mutate(Emission="A1B")
 ) %>% mutate(Loc="BOS")
-file="Y:/Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/NYC Temperature.xlsx"
+file="\\\\swv.cae.drexel.edu\\personal\\Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/NYC Temperature.xlsx"
 NYC_MonthT <- bind_rows(read_excel(file, 
                                   sheet = "A2") %>% 
                            mutate(Emission="A2"),
