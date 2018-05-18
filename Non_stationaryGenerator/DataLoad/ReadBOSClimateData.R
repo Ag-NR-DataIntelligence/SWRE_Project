@@ -173,9 +173,10 @@ BOS_Clim %>%
 # Manipulation ---------
 BOS %<>%
     arrange(Time) %>%
-    mutate(SLP.spl=spline(x=Time,y=SLP,xout=Time)$y) %>%
+    mutate(SLP.spl=spline(x=Time,y=SLP,xout=Time)$y,
+          Temp.spl=spline(x=Time,y=Temp,xout=Time)$y) %>%
     # Moving average
-    mutate(Temp.av=roll_mean(Temp,n=24,align='center',fill=NA),
+    mutate(Temp.av=roll_mean(Temp.spl,n=24,align='center',fill=NA),
            SLP.av=roll_mean(SLP.spl,n=24,align='center',fill=NA)) %>% 
     # Change of SLP to previous day
     mutate(SLP_chng.av=SLP.av-lag(SLP.av,24))
