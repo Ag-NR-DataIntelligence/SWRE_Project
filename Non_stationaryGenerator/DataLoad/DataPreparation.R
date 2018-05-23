@@ -91,7 +91,7 @@ Get_Press_Evt=function(Dt)
         left_join(.,Dt_MonT,by=c('Yr'='Yr','Mon'='Mon')) %>% 
         ungroup %>% 
         arrange(St) %>% 
-        mutate(Dur_lag1=lag(Press_Evt_lab),
+        mutate(Dur_lag1=lag(Dur),
                Press_Delta_lag1=lag(Sum_Press_Delta)) %>% 
         filter(Dur<10000) %>% #take events with more than 10000 hours as gap
         return
