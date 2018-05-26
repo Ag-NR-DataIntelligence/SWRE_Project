@@ -86,6 +86,7 @@ Get_Press_Evt=function(Dt)
                   Sum_Precip=sum(Precip,na.rm=T),
                   St_Rain=sum(StR),
                   St_Dry=sum(StD)) %>% 
+        filter(Dur<10000) %>% #take events with more than 10000 hours as gap
         mutate(Yr=year(St),
                Mon=month(St)) %>% 
         left_join(.,Dt_MonT,by=c('Yr'='Yr','Mon'='Mon')) %>% 
@@ -93,7 +94,7 @@ Get_Press_Evt=function(Dt)
         arrange(St) %>% 
         mutate(Dur_lag1=lag(Dur),
                Press_Delta_lag1=lag(Sum_Press_Delta)) %>% 
-        filter(Dur<10000) %>% #take events with more than 10000 hours as gap
+        
         return
 }
 
