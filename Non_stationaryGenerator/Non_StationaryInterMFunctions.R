@@ -14,7 +14,7 @@ FindKnearest<- function(x,n) {
   n=abs(n-x)
   r1=rank(n,ties.method= "first")
   k=round(sqrt(length(n)))
-  return(which(r1<=k))
+  return(x[which(r1<=k)])
 }
 
 #update current month, current month Temperature
