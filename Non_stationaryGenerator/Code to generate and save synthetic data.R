@@ -9,7 +9,7 @@ MonthT=MonthT_all %>% filter(Loc=="NYC",Emission=="A2")
 library(glue)
 # GCM models to simulate "IPSL","MIROC","MIUB","GFDL"
 set.seed(11)
-for (j in 1:5)
+for (j in 1:100)
 {
     SyncPrecip=SyncP_Generate(GCM = 'MIROC') 
     SyncPrecip[[1]] %>% mutate(Runid=j)

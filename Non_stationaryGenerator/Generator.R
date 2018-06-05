@@ -1,10 +1,7 @@
-
-
-
 SyncP_Generate=function(NumofNearMon = 5,
-                        TempWidth = 4,
-                        MonthWidth=3,
-                        GCM='BCCR',
+                        TempWidth = 3,
+                        DayWidth=30,
+                        GCM='MIROC',
                         FinalYear = ymd('2099-12-31'))
 {
     # Main Code ---------------------------------------------------------------
@@ -15,23 +12,24 @@ SyncP_Generate=function(NumofNearMon = 5,
     
     #MonthT=PHLT.Month 
     
-    StTime=ymd_hms("1950-01-01 00:00:00")
+    StTime=ymd_hms("2012-01-01 00:00:00")
     
     SynTime=StTime
     Press_Perd.syn=data.frame(Press_Evt_lab=NULL
                               ,Loc=NULL
                               ,Sum_Press_Delta=NULL
+                              ,Press_Delta_lag1=NULL
                               ,Dur=NULL
                               ,Dur_lag1=NULL)
     
     
     
     # Loop to generate new events -----------------------
-   
+    
     repeat
     {
         # Get window parameters ( number of months, and temperature width)
-        Monthlst=NearestMonths(month(SynTime),MonthWidth)
+        #Monthlst=NearestMonths(month(SynTime),Time Window)
         MonT_pro=MonthT %>% 
             filter(year(Date)==year(SynTime), 
                    month(Date)==month(SynTime),
@@ -43,7 +41,7 @@ SyncP_Generate=function(NumofNearMon = 5,
         repeat
         {
             Raw_dt_Evt %>% 
-                filter(Mon %in% Monthlst,
+                filter(abs(SyncDate_gap(St,SynTime))<=DayWidth,
                        between(MonT, MonT_pro- (TempWidth+adjustT),MonT_pro+(TempWidth+adjustT)),
                        PerdType*Sum_Press_Delta>=0) -> evts_pool
             
@@ -51,13 +49,25 @@ SyncP_Generate=function(NumofNearMon = 5,
             else adjustT=adjustT+1
         }
         
-        Dur_lag1=tail(Press_Perd.syn,1)$Dur_lag1
+        lagDur=tail(Press_Perd.syn,1)$Dur
+        lagPress_Delta=tail(Press_Perd.syn,1)$Sum_Press_Delta
         
         evts_pool %>% 
-            filter(row_number() %in% FindKnearest(Dur_lag1,.$Dur)) %>% 
+        {
+            dt=.
+            
+            sample(dt,1)
+            if(length(FindKnearest(lagPress_Delta,dt$Press_Delta_lag1))==0) 
+            { dt} else {
+                dt %>% 
+                    filter(Press_Delta_lag1 %in% FindKnearest(lagPress_Delta,.$Press_Delta_lag1)) 
+            }
+                
+        } %>% 
             sample_n(.,1) %>% 
-            select(Press_Evt_lab,Loc,Sum_Press_Delta,Dur,Dur_lag1) %>% 
+            select(Press_Evt_lab,Loc,Sum_Press_Delta,Press_Delta_lag1,Dur,Dur_lag1) %>% 
             rbind(Press_Perd.syn,.)->Press_Perd.syn
+        
         
         # Update Sync Time
         SynTime=SynTime+hours(Press_Perd.syn %>% tail(1) %>% .$Dur)
@@ -76,7 +86,7 @@ SyncP_Generate=function(NumofNearMon = 5,
                           SLP=NULL,
                           Precip=NULL,
                           Loc=NULL,
-                         HisPressEvt_lab=NULL)
+                          HisPressEvt_lab=NULL)
     for (i in 1:nrow(Press_Perd.syn))
     {
         
@@ -95,9 +105,8 @@ SyncP_Generate=function(NumofNearMon = 5,
     
     Precip.syn %<>% 
         mutate(SyncTime=StTime+hours(row_number()-1))
-  
-  list(Press_Perd.syn,Precip.syn) %>% return
+    
+    list(Press_Perd.syn,Precip.syn) %>% return
     
     
 }
-

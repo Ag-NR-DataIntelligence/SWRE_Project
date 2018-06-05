@@ -11,9 +11,9 @@ NearestMonths<-function(x,n) {
 #Pickup the nearest numbers
 FindKnearest<- function(x,n) {
   #x is the centered value, n is the vector
-  n=abs(n-x)
-  r1=rank(n,ties.method= "first")
-  k=round(sqrt(length(n)))
+  n1=abs(n-x)
+  r1=rank(n1,ties.method= "first")
+  k=round(sqrt(length(n1)))
   return(x[which(r1<=k)])
 }
 
