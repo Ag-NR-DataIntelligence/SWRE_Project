@@ -11,7 +11,7 @@ library(glue)
 set.seed(11)
 for (j in 1:100)
 {
-    SyncPrecip=SyncP_Generate(GCM = 'MIROC') 
+    SyncPrecip=SyncP_Generate(GCM = 'MIROC',TempWidth=1.5) 
     SyncPrecip[[1]] %>% mutate(Runid=j)
     SyncPrecip[[2]] %>% mutate(Runid=j)
     

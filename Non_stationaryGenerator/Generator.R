@@ -1,6 +1,6 @@
-SyncP_Generate=function(NumofNearMon = 5,
-                        TempWidth = 3,
-                        DayWidth=30,
+SyncP_Generate=function(
+                        TempWidth = 3, #degree
+                        TimeWidth=1.5, #month
                         GCM='MIROC',
                         FinalYear = ymd('2099-12-31'))
 {
@@ -38,15 +38,20 @@ SyncP_Generate=function(NumofNearMon = 5,
         
         
         adjustT=0
+        adjustTime=0
         repeat
         {
             Raw_dt_Evt %>% 
-                filter(abs(SyncDate_gap(St,SynTime))<=DayWidth,
+                filter(abs(SyncDate_gap(St,SynTime,unit="months"))<=TimeWidth+adjustTime,
                        between(MonT, MonT_pro- (TempWidth+adjustT),MonT_pro+(TempWidth+adjustT)),
                        PerdType*Sum_Press_Delta>=0) -> evts_pool
             
-            if (nrow(evts_pool)>0) break
-            else adjustT=adjustT+1
+            if (nrow(evts_pool)>25) {break
+            #Adjust time before temperature
+            } else {
+                if (adjustTime==3) {adjustT=adjustT+1
+                } else {adjustTime=adjustTime+0.5}
+            }
         }
         
         lagDur=tail(Press_Perd.syn,1)$Dur
@@ -68,6 +73,10 @@ SyncP_Generate=function(NumofNearMon = 5,
             select(Press_Evt_lab,Loc,Sum_Press_Delta,Press_Delta_lag1,Dur,Dur_lag1) %>% 
             rbind(Press_Perd.syn,.)->Press_Perd.syn
         
+        # if ((Press_Perd.syn %>% 
+        #     tail(.,1) %>% 
+        #     filter(Loc=="PHL", Press_Evt_lab %in% c(5511,5512,878,881,5510)) %>% 
+        #     nrow)>0) break
         
         # Update Sync Time
         SynTime=SynTime+hours(Press_Perd.syn %>% tail(1) %>% .$Dur)
