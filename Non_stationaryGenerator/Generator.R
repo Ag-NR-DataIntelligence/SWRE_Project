@@ -42,15 +42,15 @@ SyncP_Generate=function(
         repeat
         {
             Raw_dt_Evt %>% 
-                filter(abs(SyncDate_gap(St,SynTime,unit="months"))<=TimeWidth+adjustTime,
-                       between(MonT, MonT_pro- (TempWidth+adjustT),MonT_pro+(TempWidth+adjustT)),
+                filter(abs(SyncDate_gap(St,SynTime,unit="months"))<=TimeWidth,
+                       between(MonT, MonT_pro- TempWidth,MonT_pro+TempWidth),
                        PerdType*Sum_Press_Delta>=0) -> evts_pool
             
             if (nrow(evts_pool)>25) {break
             #Adjust time before temperature
             } else {
-                if (adjustTime==3) {adjustT=adjustT+1
-                } else {adjustTime=adjustTime+0.5}
+                if (TimeWidth==3) {TempWidth=TempWidth+1
+                } else {TimeWidth=TimeWidth+0.5}
             }
         }
         
