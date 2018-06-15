@@ -37,8 +37,6 @@ SyncP_Generate=function(
             .$MonT
         
         
-        adjustT=0
-        adjustTime=0
         repeat
         {
             Raw_dt_Evt %>% 
@@ -49,9 +47,12 @@ SyncP_Generate=function(
             if (nrow(evts_pool)>25) {break
             #Adjust time before temperature
             } else {
-                if (TimeWidth==3) {TempWidth=TempWidth+1
-                } else {TimeWidth=TimeWidth+0.5}
-            }
+                #Adjust temperaure window only
+                TempWidth=TempWidth+1
+                #Adjust time window before temperature
+            #     if (TimeWidth==3) {TempWidth=TempWidth+1
+            #     } else {TimeWidth=TimeWidth+0.5}
+            # }
         }
         
         lagDur=tail(Press_Perd.syn,1)$Dur
