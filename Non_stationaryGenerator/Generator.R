@@ -52,7 +52,7 @@ SyncP_Generate=function(
                 #Adjust time window before temperature
             #     if (TimeWidth==3) {TempWidth=TempWidth+1
             #     } else {TimeWidth=TimeWidth+0.5}
-            # }
+             }
         }
         
         lagDur=tail(Press_Perd.syn,1)$Dur
