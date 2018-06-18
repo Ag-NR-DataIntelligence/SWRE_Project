@@ -50,7 +50,7 @@ SyncDate_gap=function(Dt, SynDt,unit="day")
         as.period()  %>% 
         {
             gap=.
-            (gap-years(as.numeric(gap,unit=unit)%/%1)) %>% 
+            (gap-years(as.numeric(gap,unit='year')%/%1)) %>% 
                 as.numeric(unit=unit)
         }  %>% 
         return
