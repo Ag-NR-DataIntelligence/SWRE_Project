@@ -44,14 +44,13 @@ Round_hour=function(Datetime)
 }
 
 # function to find the day gap getween two synthetic dates
-SyncDate_gap=function(Dt, SynDt,unit="day")
+SyncDate_gap=function(Dt, SynDt)
 {
-    interval(Dt,SynDt) %>% 
-        as.period()  %>% 
-        {
-            gap=.
-            (gap-years(as.numeric(gap,unit='year')%/%1)) %>% 
-                as.numeric(unit=unit)
-        }  %>% 
+    dt_yday=yday(dt)
+    SynDt_yday=yday(SynDt)
+    
+    yday_diff=abs(SynDt_yday-dt_yday) 
+    
+    min(yday_diff,365-yday_diff) %>% 
         return
 }
