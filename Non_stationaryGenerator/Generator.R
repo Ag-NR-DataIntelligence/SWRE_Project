@@ -40,7 +40,7 @@ SyncP_Generate=function(
         repeat
         {
             Raw_dt_Evt %>% 
-                filter(abs(SyncDate_gap(St,SynTime,unit="months"))<=TimeWidth,
+                filter(SyncDate_gap(St,SynTime)<=TimeWidth,
                        between(MonT, MonT_pro- TempWidth,MonT_pro+TempWidth),
                        PerdType*Sum_Press_Delta>=0) -> evts_pool
             
