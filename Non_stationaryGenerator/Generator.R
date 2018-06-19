@@ -1,6 +1,6 @@
 SyncP_Generate=function(
                         TempWidth = 3, #degree
-                        TimeWidth=1.5, #month
+                        TimeWidth=45, #day
                         GCM='MIROC',
                         FinalYear = ymd('2099-12-31'))
 {
