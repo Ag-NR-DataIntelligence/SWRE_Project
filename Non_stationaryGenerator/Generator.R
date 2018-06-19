@@ -1,6 +1,10 @@
 SyncP_Generate=function(
                         TempWidth = 3, #degree
+<<<<<<< HEAD
                         TimeWidth= 45, #day
+=======
+                        TimeWidth=45, #day
+>>>>>>> 67bd3c2123c00f47842fc959529459e91ce79d60
                         GCM='MIROC',
                         FinalYear = ymd('2099-12-31'))
 {
@@ -40,7 +44,7 @@ SyncP_Generate=function(
         repeat
         {
             Raw_dt_Evt %>% 
-                filter(abs(SyncDate_gap(St,SynTime,unit="months"))<=TimeWidth,
+                filter(SyncDate_gap(St,SynTime)<=TimeWidth,
                        between(MonT, MonT_pro- TempWidth,MonT_pro+TempWidth),
                        PerdType*Sum_Press_Delta>=0) -> evts_pool
             
