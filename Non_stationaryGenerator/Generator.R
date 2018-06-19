@@ -39,8 +39,10 @@ SyncP_Generate=function(
         
         repeat
         {
+            Sync_yday=yday(SynTime)
             Raw_dt_Evt %>% 
-                filter(SyncDate_gap(St,SynTime)<=TimeWidth,
+                mutate(St_yday=yday(St)-Sync_yday) %>% 
+                filter((abs(St_yday-Sync_yday)<=TimeWidth | 365-abs(St_yday-Sync_yday)<=TimeWidth),
                        between(MonT, MonT_pro- TempWidth,MonT_pro+TempWidth),
                        PerdType*Sum_Press_Delta>=0) -> evts_pool
             
