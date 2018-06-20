@@ -20,10 +20,14 @@ SyncP_Generate=function(
                               ,Sum_Press_Delta=NULL
                               ,Press_Delta_lag1=NULL
                               ,Dur=NULL
-                              ,Dur_lag1=NULL)
+                              ,Dur_lag1=NULL
+                              ,MonT=NULL
+                              ,HisSt=NULL
+                              ,SynSt=NULL)
     
     
-    
+    Raw_dt_Evt %<>% 
+        mutate(St_yday=yday(St))
     # Loop to generate new events -----------------------
     
     repeat
@@ -41,8 +45,8 @@ SyncP_Generate=function(
         {
             Sync_yday=yday(SynTime)
             Raw_dt_Evt %>% 
-                mutate(St_yday=yday(St)-Sync_yday) %>% 
-                filter((abs(St_yday-Sync_yday)<=TimeWidth | 365-abs(St_yday-Sync_yday)<=TimeWidth),
+                mutate(St_yday=abs(St_yday-Sync_yday)) %>% 
+                filter(!data.table::between(St_yday,TimeWidth, 365-TimeWidth),
                        between(MonT, MonT_pro- TempWidth,MonT_pro+TempWidth),
                        PerdType*Sum_Press_Delta>=0) -> evts_pool
             
@@ -64,22 +68,24 @@ SyncP_Generate=function(
         {
             dt=.
             
-            sample(dt,1)
             if(length(FindKnearest(lagPress_Delta,dt$Press_Delta_lag1))==0) 
             { dt} else {
                 dt %>% 
                     filter(Press_Delta_lag1 %in% FindKnearest(lagPress_Delta,.$Press_Delta_lag1)) 
             }
-                
+            
         } %>% 
             sample_n(.,1) %>% 
-            select(Press_Evt_lab,Loc,Sum_Press_Delta,Press_Delta_lag1,Dur,Dur_lag1) %>% 
+            mutate(MonT=MonT_pro) %>% 
+            select(Press_Evt_lab,Loc,Sum_Press_Delta,Press_Delta_lag1,Dur,Dur_lag1,MonT,St) %>%
+            rename(HisSt=St) %>% 
+            mutate(SynSt=SynTime) %>% 
             rbind(Press_Perd.syn,.)->Press_Perd.syn
         
-        # if ((Press_Perd.syn %>% 
-        #     tail(.,1) %>% 
-        #     filter(Loc=="PHL", Press_Evt_lab %in% c(5511,5512,878,881,5510)) %>% 
-        #     nrow)>0) break
+        if ((Press_Perd.syn %>%
+             tail(.,1) %>%
+             filter(data.table::between(abs(yday(HisSt)-yday(SynSt)),TimeWidth,365-TimeWidth)) %>%
+             nrow)>0) break
         
         # Update Sync Time
         SynTime=SynTime+hours(Press_Perd.syn %>% tail(1) %>% .$Dur)
