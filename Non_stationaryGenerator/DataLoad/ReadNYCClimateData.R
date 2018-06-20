@@ -181,6 +181,7 @@ NYC_LGA_Clim %>%
 # Manipulation ---------
 NYC %<>%
     arrange(Time) %>%
+    pad %>% 
     mutate(SLP.spl=spline(x=Time,y=SLP,xout=Time)$y,
           Temp.spl=spline(x=Time,y=Temp,xout=Time)$y) %>%
     # Moving average

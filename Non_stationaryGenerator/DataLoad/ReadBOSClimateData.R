@@ -171,8 +171,9 @@ BOS_Clim %>%
   full_join(BOS_Precip,by=c('Time'='Time')) -> BOS
 
 # Manipulation ---------
-BOS %<>%
+BOS %<>% 
     arrange(Time) %>%
+    pad %>% 
     mutate(SLP.spl=spline(x=Time,y=SLP,xout=Time)$y,
           Temp.spl=spline(x=Time,y=Temp,xout=Time)$y) %>%
     # Moving average
