@@ -98,28 +98,11 @@ SyncP_Generate=function(
     
     
     # compile precipitation data from events
-    Precip.syn=data.frame(Time=NULL,
-                          Temp=NULL,
-                          DewPt=NULL,
-                          SLP=NULL,
-                          Precip=NULL,
-                          Loc=NULL,
-                          HisPressEvt_lab=NULL)
-    for (i in 1:nrow(Press_Perd.syn))
-    {
-        
-        Raw_dt_Evt %>% 
-            filter(Loc==Press_Perd.syn$Loc[i],
-                   Press_Evt_lab==Press_Perd.syn$Press_Evt_lab[i])->Evt
-        
-        Raw_dt %>% 
-            filter(between(Time,Evt$St,Evt$End),
-                   Loc==Evt$Loc) %>% 
-            mutate(Press_Evt_lab=Evt$Press_Evt_lab) %>%
-            select(Time,Temp,DewPt,SLP,Precip,Loc,Press_Evt_lab) %>% 
-            rename(HisPressEvt_lab=Press_Evt_lab) %>% 
-            rbind(Precip.syn,.)->Precip.syn
-    }
+    Press_Perd.syn %>% 
+        mutate(Press_Evt=row_number()) %>% 
+        left_join(Raw_dt %>% select(Time,Press_Evt_lab,Loc,Precip,SLP.av),by=c("Press_Evt_lab"="Press_Evt_lab","Loc"="Loc")) %>% 
+        arrange(Press_Evt,Time) %>% 
+        mutate(SyncTime=StTime+hours(row_number()-1)) ->Precip.syn
     
     Precip.syn %<>% 
         mutate(SyncTime=StTime+hours(row_number()-1))
