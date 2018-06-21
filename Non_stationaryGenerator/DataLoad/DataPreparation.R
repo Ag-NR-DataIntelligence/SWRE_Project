@@ -53,20 +53,9 @@ BOS %<>% Precip_Evt_Sep(.,4)
 PHL %<>% Precip_Evt_Sep(.,4)
 NYC %<>% Precip_Evt_Sep(.,4)
 
-Raw_dt=rbind(BOS,NYC,PHL) %>% 
-  mutate(Precip=ifelse(is.na(Precip),0,Precip))
-
-
 # Convert Climate data into pressure events series------------
-Get_Press_Evt=function(Dt) 
+Get_Press_Evt_lab=function(Dt) 
 {
-    Dt %>% 
-        mutate(Mon=month(Time),
-               Yr=year(Time)) %>% 
-        group_by(Yr,Mon) %>% 
-        summarise(MonT=mean(Temp,na.rm=T))->Dt_MonT
-    
-    
     Dt %>% 
         arrange(Time)%>%
         mutate(Mon=month(Time)) %>% 
@@ -74,6 +63,26 @@ Get_Press_Evt=function(Dt)
         mutate(Press_Evt_lab=ifelse(SLP_chng.av*lag(SLP_chng.av)<=0 & lag(SLP_chng.av)!=0,1,0)) %>% 
         mutate(Press_Evt_lab=ifelse(is.na(Press_Evt_lab),0,Press_Evt_lab)) %>% 
         mutate(Press_Evt_lab=cumsum(Press_Evt_lab)) %>% 
+        return
+}
+
+BOS %<>% Get_Press_Evt_lab()
+NYC %<>% Get_Press_Evt_lab()
+PHL %<>% Get_Press_Evt_lab()
+
+Raw_dt=rbind(BOS,NYC,PHL) %>% 
+    mutate(Precip=ifelse(is.na(Precip),0,Precip))
+
+
+Get_Press_Evt=function(Dt)
+{
+    Dt %>% 
+        mutate(Mon=month(Time),
+               Yr=year(Time)) %>% 
+        group_by(Yr,Mon) %>% 
+        summarise(MonT=mean(Temp,na.rm=T))->Dt_MonT
+    
+    Dt %>% 
         filter(Press_Evt_lab>0,
                Press_Evt_lab<max(Press_Evt_lab)) %>% 
         group_by(Press_Evt_lab,Loc) %>% 
