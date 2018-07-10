@@ -1,8 +1,8 @@
 SyncP_Generate=function(
-                        TempWidth = 3, #degree
-                        TimeWidth= 45, #day
-                        GCM='MIROC',
-                        FinalYear = ymd('2099-12-31'))
+    TempWidth = 3, #degree
+    TimeWidth=15, #day
+    GCM='MIROC',
+    FinalYear = ymd('2099-12-31'))
 {
     # Main Code ---------------------------------------------------------------
     
@@ -17,10 +17,11 @@ SyncP_Generate=function(
     SynTime=StTime
     Press_Perd.syn=data.frame(Press_Evt_lab=NULL
                               ,Loc=NULL
-                              ,Sum_Press_Delta=NULL
-                              ,Press_Delta_lag1=NULL
+                              ,SclPress_delta=NULL
+                              ,SclPress_delta_lag=NULL
+                              ,SclDur=NULL
+                              ,SclDur_lag=NULL
                               ,Dur=NULL
-                              ,Dur_lag1=NULL
                               ,MonT=NULL
                               ,HisSt=NULL
                               ,SynSt=NULL)
@@ -51,41 +52,47 @@ SyncP_Generate=function(
                        PerdType*Sum_Press_Delta>=0) -> evts_pool
             
             if (nrow(evts_pool)>25) {break
-            #Adjust time before temperature
+                #Adjust time before temperature
             } else {
                 #Adjust temperaure window only
                 TempWidth=TempWidth+1
                 #Adjust time window before temperature
-            #     if (TimeWidth==3) {TempWidth=TempWidth+1
-            #     } else {TimeWidth=TimeWidth+0.5}
-             }
+                #     if (TimeWidth==3) {TempWidth=TempWidth+1
+                #     } else {TimeWidth=TimeWidth+0.5}
+            }
         }
         
-        lagDur=tail(Press_Perd.syn,1)$Dur
-        lagPress_Delta=tail(Press_Perd.syn,1)$Sum_Press_Delta
+        lagDur=tail(Press_Perd.syn,1)$SclDur
+        lagPress_Delta=tail(Press_Perd.syn,1)$SclPress_delta
         
         evts_pool %>% 
+            # {
+            #     dt=.
+            #     
+            #     if(length(FindKnearest(lagPress_Delta,dt$Press_Delta_lag1))==0) 
+            #     { dt} else {
+            #         dt %>% 
+            #             filter(Press_Delta_lag1 %in% FindKnearest(lagPress_Delta,.$Press_Delta_lag1)) 
+            #     }
+            #     
+            # } %>% 
         {
-            dt=.
-            
-            if(length(FindKnearest(lagPress_Delta,dt$Press_Delta_lag1))==0) 
-            { dt} else {
+            if (length(lagDur)==0)
+            {.} else {
+                # Use distance combined pressure change and duration
+                dt=. 
                 dt %>% 
-                    filter(Press_Delta_lag1 %in% FindKnearest(lagPress_Delta,.$Press_Delta_lag1)) 
-            }
-            
+                    mutate(Dis=sqrt(((SclPress_delta_lag-lagPress_Delta))^2+((SclDur_lag-lagDur))^2)) %>% 
+                    arrange(Dis) %>% 
+                    filter(row_number()<sqrt(n())) }
         } %>% 
             sample_n(.,1) %>% 
             mutate(MonT=MonT_pro) %>% 
-            select(Press_Evt_lab,Loc,Sum_Press_Delta,Press_Delta_lag1,Dur,Dur_lag1,MonT,St) %>%
+            select(Press_Evt_lab,Loc,SclPress_delta,SclPress_delta_lag,SclDur,SclDur_lag,Dur,MonT,St) %>%
             rename(HisSt=St) %>% 
             mutate(SynSt=SynTime) %>% 
             rbind(Press_Perd.syn,.)->Press_Perd.syn
         
-        if ((Press_Perd.syn %>%
-             tail(.,1) %>%
-             filter(data.table::between(abs(yday(HisSt)-yday(SynSt)),TimeWidth,365-TimeWidth)) %>%
-             nrow)>0) break
         
         # Update Sync Time
         SynTime=SynTime+hours(Press_Perd.syn %>% tail(1) %>% .$Dur)
