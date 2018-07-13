@@ -9,7 +9,12 @@ Location_dt=tibble(USAF=c(725090,999999,724080,999999,725030),
 
 #create temp folder to download zip file and extract
 dir.create("temp")
+# Historical Data
 URL="https://www.dropbox.com/s/hdla2jmo0s694pa/HistoricalData.zip?dl=1"
+GET(url = URL,write_disk("temp/temp.zip", overwrite = TRUE))
+unzip("temp/temp.zip",exdir = "temp")
+# GCM temp projections
+URL="https://www.dropbox.com/s/pxwrv6p99x0elsc/GCM%20Temp.zip?dl=1"
 GET(url = URL,write_disk("temp/temp.zip", overwrite = TRUE))
 unzip("temp/temp.zip",exdir = "temp")
 
@@ -44,8 +49,7 @@ for (n in list.files(path,pattern=".txt$"))
              skip = 2) %>% 
         bind_rows(Dt)->Dt
 }
-# Remove the temp folder
-unlink("temp", recursive=TRUE)
+
 
 Dt %>% 
     left_join(Location_dt,by=c("USAF","NCDC")) %>% 
@@ -195,7 +199,7 @@ Raw_dt_Evt %<>%
 
 # Climate change monthly Temperature data -------------------
 library(readxl)
-file="\\\\swv.cae.drexel.edu\\personal\\Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/Philadelphia Temperature.xlsx"
+file="temp/Philadelphia Temperature.xlsx"
 PHL_MonthT <- bind_rows(read_excel(file, 
                                    sheet = "A2") %>% 
                             mutate(Emission="A2"),
@@ -206,7 +210,7 @@ PHL_MonthT <- bind_rows(read_excel(file,
                                    sheet = "A1B") %>% 
                             mutate(Emission="A1B")
 ) %>% mutate(Loc="PHL")
-file="\\\\swv.cae.drexel.edu\\personal\\Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/BOS Temperature.xlsx"
+file="temp/BOS Temperature.xlsx"
 BOS_MonthT <- bind_rows(read_excel(file, 
                                    sheet = "A2") %>% 
                             mutate(Emission="A2"),
@@ -217,7 +221,7 @@ BOS_MonthT <- bind_rows(read_excel(file,
                                    sheet = "A1B") %>% 
                             mutate(Emission="A1B")
 ) %>% mutate(Loc="BOS")
-file="\\\\swv.cae.drexel.edu\\personal\\Ziwen/Research/Precipitation analysis/Data/Data with climate change/Monthly Temp/NYC Temperature.xlsx"
+file="temp/NYC Temperature.xlsx"
 NYC_MonthT <- bind_rows(read_excel(file, 
                                    sheet = "A2") %>% 
                             mutate(Emission="A2"),
@@ -240,7 +244,8 @@ rm(Climate_Dt)
 rm(Curated_Climate_Dt)
 rm(Dt)
 rm(Location_dt)
-
+# Remove the temp folder
+unlink("temp", recursive=TRUE)
 
 Raw_dt_Evt %<>% 
     mutate(SclPress_delta=scale(Sum_Press_Delta),
