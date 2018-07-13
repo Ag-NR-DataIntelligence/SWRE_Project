@@ -7,8 +7,15 @@ Location_dt=tibble(USAF=c(725090,999999,724080,999999,725030),
                    NCDC=c(14739,13739,13739,14732,14732),
                    Loc=c("BOS","PHL","PHL","NYC","NYC"))
 
+#create temp folder to download zip file and extract
+dir.create("temp")
+URL="https://www.dropbox.com/s/hdla2jmo0s694pa/HistoricalData.zip?dl=1"
+GET(url = URL,write_disk("temp/temp.zip", overwrite = TRUE))
+unzip("temp/temp.zip",exdir = "temp")
+
+# Read data
 Dt=NULL
-path="Z:/Working Publications/Ziwen/Climate Change/Data"
+path="temp"
 for (n in list.files(path,pattern=".txt$"))
 {
     read_csv(paste(path,n,sep="/"),
@@ -37,6 +44,8 @@ for (n in list.files(path,pattern=".txt$"))
              skip = 2) %>% 
         bind_rows(Dt)->Dt
 }
+# Remove the temp folder
+unlink("temp", recursive=TRUE)
 
 Dt %>% 
     left_join(Location_dt,by=c("USAF","NCDC")) %>% 
