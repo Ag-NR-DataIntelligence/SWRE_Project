@@ -237,6 +237,14 @@ MonthT_all=bind_rows(PHL_MonthT,BOS_MonthT,NYC_MonthT) %>%
     mutate(Date=ymd(Date)) %>% 
     gather(.,Model,MonT,-Date,-Emission,-Loc)
 
+
+Raw_dt_Evt %<>% 
+    mutate(SclPress_delta=scale(Sum_Press_Delta),
+           SclDur=scale(Dur)) %>% 
+    mutate(SclPress_delta_lag=lag(SclPress_delta),
+           SclDur_lag=lag(SclDur))
+
+
 rm(BOS_MonthT)
 rm(PHL_MonthT)
 rm(NYC_MonthT)
@@ -244,11 +252,9 @@ rm(Climate_Dt)
 rm(Curated_Climate_Dt)
 rm(Dt)
 rm(Location_dt)
+rm(Get_Press_Evt)
+rm(Get_Press_Evt_lab)
+rm(pad_loc)
+rm(Precip_Evt_Sep)
 # Remove the temp folder
 unlink("temp", recursive=TRUE)
-
-Raw_dt_Evt %<>% 
-    mutate(SclPress_delta=scale(Sum_Press_Delta),
-           SclDur=scale(Dur)) %>% 
-    mutate(SclPress_delta_lag=lag(SclPress_delta),
-           SclDur_lag=lag(SclDur))
