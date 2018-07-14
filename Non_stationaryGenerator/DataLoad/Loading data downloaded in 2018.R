@@ -2,6 +2,7 @@ library(lubridate)
 library(tidyverse)
 library(padr)
 library(RcppRoll)
+library(httr)
 
 Location_dt=tibble(USAF=c(725090,999999,724080,999999,725030),
                    NCDC=c(14739,13739,13739,14732,14732),
