@@ -1,6 +1,9 @@
 
 library(units)
 library(glue)
+library(tidyverse)
+library(lubridate)
+library(httr)
 
 dir.create("temp")
 URL="https://www.dropbox.com/s/2dp85uh3s4zbfjm/Data.zip?dl=1"
