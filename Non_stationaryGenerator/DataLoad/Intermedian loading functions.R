@@ -93,14 +93,14 @@ ReadSynPrecip_summary=function(n)
     x %>% 
         mutate(Yr=year(Time)) %>% 
         group_by(Yr) %>% 
-        summarise(HrP_max=max(Precip)) %>% 
+        summarise(HrP_max=max(Precip,na.rm=T)) %>% 
         mutate(runid=n)->HrPrecip
     
     x %>% 
         mutate(DtP=c(roll_sum(Precip,24,align = 'left'),rep(NA,23)),
                Yr=year(Time)) %>% 
         group_by(Yr) %>% 
-        summarise(DtP_max=max(DtP))%>% 
+        summarise(DtP_max=max(DtP,na.rm=T))%>% 
         mutate(runid=n)->DtPrecip
     
     x  %>% 
@@ -112,14 +112,14 @@ ReadSynPrecip_summary=function(n)
         Yr=year(Time)) %>% 
         replace_na(list(Season = "Winter (DJF)")) %>%
         group_by(Yr,Season) %>% 
-        summarise(SnP=sum(Precip))%>% 
+        summarise(SnP=sum(Precip,na.rm=T))%>% 
         mutate(runid=n)->SnPrecip
     
     x %>% 
         mutate(Mon=month(Time),
                Yr=year(Time)) %>% 
         group_by(Yr,Mon) %>% 
-        summarise(Mon_P=sum(Precip),
+        summarise(Mon_P=sum(Precip,na.rm=T),
                   MonT=mean(MonT)) %>% 
         mutate(runid=n)-> Mon_P
     

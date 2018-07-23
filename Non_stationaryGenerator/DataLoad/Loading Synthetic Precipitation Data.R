@@ -1,4 +1,4 @@
-
+source("https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/Non_stationaryGenerator/DataLoad/Intermedian%20loading%20functions.R")
 library(units)
 library(glue)
 library(tidyverse)
@@ -41,5 +41,5 @@ SyncPress_Perd %<>%
     ))) %>%
     replace_na(list(Season = "Winter (DJF)"))
 
-rm(ReadSynPrecip_summary)
-rm(ReadSynPressPerd)
+# Remove the temp folder
+unlink("temp", recursive=TRUE)
