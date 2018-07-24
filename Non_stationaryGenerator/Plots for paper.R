@@ -165,10 +165,56 @@ Raw_dt_Evt %>%
                    SynHis="Synthetic") %>% 
             filter(Sum_Precip>0.01) %>% 
             select(Sum_Precip,Sum_Press_Delta,MonT,PCEType,SynHis)
-    ) %>% 
-    
+    ) -> Plt_dt
+
+
+Plt_dt %>% 
+    filter(Sum_Precip<100) %>% 
+    mutate(MonT=round(MonT)) %>%  
+    group_by(SynHis,MonT,PCEType) %>% 
+    summarise(#Precip_95=quantile(Sum_Precip,0.95),
+              Precip_75=quantile(Sum_Precip,0.75),
+              Precip_50=quantile(Sum_Precip,0.50),
+              Precip_25=quantile(Sum_Precip,0.25),
+              Precip_10=quantile(Sum_Precip,0.10),
+              Precip_99=quantile(Sum_Precip,0.99))->Plt_dt1
+
+Plt_dt %>% 
     ggplot(aes(x=MonT,y=Sum_Precip,color=PCEType))+
+    # geom_point(data=Plt_dt1,
+    #            aes(x=MonT,y=Precip_95,shape=SynHis),size=2.5,alpha=0.4)+
+    # geom_smooth(data=Plt_dt1,
+    #            aes(x=MonT,y=Precip_95,shape=SynHis,linetype=SynHis),color="gray40",se=F,size=1)+
+    # geom_point(data=Plt_dt1,
+    #            aes(x=MonT,y=Precip_75,shape=SynHis),size=2.5,alpha=0.4)+
+    geom_smooth(data=Plt_dt1,
+               aes(x=MonT,y=Precip_75,shape=SynHis,linetype=SynHis),color="gray40",se=F,size=1)+
+    # geom_point(data=Plt_dt1,
+    #            aes(x=MonT,y=Precip_99,shape=SynHis),size=2.5,alpha=0.4)+
+    geom_smooth(data=Plt_dt1,
+                aes(x=MonT,y=Precip_99,shape=SynHis,linetype=SynHis),color="gray40",se=F,size=1)+
+    # geom_point(data=Plt_dt1,
+    #            aes(x=MonT,y=Precip_50,shape=SynHis),size=2.5,alpha=0.4)+
+    geom_smooth(data=Plt_dt1,
+                aes(x=MonT,y=Precip_50,shape=SynHis,linetype=SynHis),color="gray40",se=F,size=1)+
+    annotate("text", x = 34, y = 5, label = "50% PD")+
+    # geom_point(data=Plt_dt1,
+    #            aes(x=MonT,y=Precip_25,shape=SynHis),size=2.5,alpha=0.4)+
+    geom_smooth(data=Plt_dt1,
+                aes(x=MonT,y=Precip_25,shape=SynHis,linetype=SynHis),color="gray40",se=F,size=1)+
+    annotate("text", x = 34, y = 2, label = "25% PD")+
+    # geom_point(data=Plt_dt1,
+    #            aes(x=MonT,y=Precip_10,shape=SynHis),size=2.5,alpha=0.4)+
+    geom_smooth(data=Plt_dt1,
+                aes(x=MonT,y=Precip_10,shape=SynHis,linetype=SynHis),color="gray40",se=F,size=1)+
+    annotate("text", x = 34, y = 0.5, label = "10% PD")+
     stat_density_2d(aes(linetype=SynHis,size=SynHis),bins=4)+
+    #geom_abline(slope=0.07,intercept = 0,size=0.5,color="gray10",linetype="longdash")+
+    #annotate("text", x = -4, y = 0.8, label = "7% / °C")+
+    annotate("text", x = 34, y = 65, label = "99% PD")+
+    #annotate("text", x = 30, y = 40, label = "95% PD")+
+    annotate("text", x = 34, y = 15, label = "75% PD")+
+    
     facet_grid(.~PCEType)+
     scale_linetype("")+
     scale_y_log10(breaks=c(0.5,1,5,10,50,100))+
@@ -177,6 +223,7 @@ Raw_dt_Evt %>%
     scale_shape("")+
     ylab('Precipitation Depth (PD) (mm) in log scale')+
     xlab(expression(paste("Average Monthly Temperature (AMT) (",degree,"C)")))+
+    xlim(-5,35)+
     theme_Result+
     theme(legend.key.width=unit(3,"line"),
           legend.key = element_rect(color="transparent",fill="white"))
