@@ -8,9 +8,7 @@ SyncP_Generate=function(
     
     
     
-    PerdType = -1 #Positive:1 Negative:-1
-    
-    #MonthT=PHLT.Month 
+    PerdType = -1 #InPCE:1 DePCE:-1
     
     StTime=ymd_hms("2012-01-01 00:00:00")
     
@@ -41,24 +39,20 @@ SyncP_Generate=function(
                    Model==GCM) %>% 
             .$MonT
         
-        
+        Temp_adj=0
         repeat
         {
             Sync_yday=yday(SynTime)
             Raw_dt_Evt %>% 
                 mutate(St_yday=abs(St_yday-Sync_yday)) %>% 
                 filter(!data.table::between(St_yday,TimeWidth, 365-TimeWidth),
-                       between(MonT, MonT_pro- TempWidth,MonT_pro+TempWidth),
+                       between(MonT, MonT_pro- (TempWidth+Temp_adj),MonT_pro+(TempWidth+Temp_adj)),
                        PerdType*Sum_Press_Delta>=0) -> evts_pool
             
             if (nrow(evts_pool)>25) {break
-                #Adjust time before temperature
             } else {
                 #Adjust temperaure window only
-                TempWidth=TempWidth+1
-                #Adjust time window before temperature
-                #     if (TimeWidth==3) {TempWidth=TempWidth+1
-                #     } else {TimeWidth=TimeWidth+0.5}
+                Temp_adj=Temp_adj+1
             }
         }
         
@@ -66,16 +60,6 @@ SyncP_Generate=function(
         lagPress_Delta=tail(Press_Perd.syn,1)$SclPress_delta
         
         evts_pool %>% 
-            # {
-            #     dt=.
-            #     
-            #     if(length(FindKnearest(lagPress_Delta,dt$Press_Delta_lag1))==0) 
-            #     { dt} else {
-            #         dt %>% 
-            #             filter(Press_Delta_lag1 %in% FindKnearest(lagPress_Delta,.$Press_Delta_lag1)) 
-            #     }
-            #     
-            # } %>% 
         {
             if (length(lagDur)==0)
             {.} else {
